@@ -1,0 +1,87 @@
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
+
+-- إنشاء واجهة المستخدم
+local ScreenGui = Instance.new("ScreenGui")
+ScreenGui.Name = "SkinClonerGui"
+ScreenGui.ResetOnSpawn = false
+
+local parentTarget = (pcall(function() return game:GetService("CoreGui") end) and game:GetService("CoreGui")) or LocalPlayer:WaitForChild("PlayerGui")
+ScreenGui.Parent = parentTarget
+
+local MainFrame = Instance.new("Frame")
+MainFrame.Size = UDim2.new(0, 220, 0, 130)
+MainFrame.Position = UDim2.new(0.5, -110, 0.2, 0)
+MainFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+MainFrame.BorderSizePixel = 0
+MainFrame.Active = true
+MainFrame.Draggable = true
+MainFrame.Parent = ScreenGui
+
+local UICorner = Instance.new("UICorner", MainFrame)
+UICorner.CornerRadius = UDim.new(0, 10)
+
+local Title = Instance.new("TextLabel")
+Title.Size = UDim2.new(1, 0, 0, 30)
+Title.BackgroundTransparency = 1
+Title.TextColor3 = Color3.fromRGB(255, 255, 255)
+Title.Text = "ناسخ السكنات (Avatar Cloner)"
+Title.Font = Enum.Font.GothamBold
+Title.TextSize = 13
+Title.Parent = MainFrame
+
+local TextBox = Instance.new("TextBox")
+TextBox.Size = UDim2.new(0.9, 0, 0, 35)
+TextBox.Position = UDim2.new(0.05, 0, 0.3, 0)
+TextBox.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
+TextBox.TextColor3 = Color3.fromRGB(255, 255, 255)
+TextBox.PlaceholderText = "اكتب اسم المستخدم هنا..."
+TextBox.PlaceholderColor3 = Color3.fromRGB(160, 160, 160)
+TextBox.Font = Enum.Font.Gotham
+TextBox.TextSize = 12
+TextBox.ClearTextOnFocus = false
+TextBox.Parent = MainFrame
+Instance.new("UICorner", TextBox).CornerRadius = UDim.new(0, 8)
+
+local Button = Instance.new("TextButton")
+Button.Size = UDim2.new(0.9, 0, 0, 35)
+Button.Position = UDim2.new(0.05, 0, 0.65, 0)
+Button.BackgroundColor3 = Color3.fromRGB(0, 170, 120)
+Button.TextColor3 = Color3.fromRGB(255, 255, 255)
+Button.Text = "نسخ السكن"
+Button.Font = Enum.Font.GothamBold
+Button.TextSize = 14
+Button.Parent = MainFrame
+Instance.new("UICorner", Button).CornerRadius = UDim.new(0, 8)
+
+-- وظيفة جلب ونسخ السكن
+Button.MouseButton1Click:Connect(function()
+    local targetUsername = TextBox.Text:gsub("%s+", "")
+    if targetUsername == "" then return end
+
+    Button.Text = "جاري البحث..."
+    Button.BackgroundColor3 = Color3.fromRGB(180, 130, 20)
+
+    task.spawn(function()
+        local success, err = pcall(function()
+            local userId = Players:GetUserIdFromNameAsync(targetUsername)
+            local description = Players:GetHumanoidDescriptionFromUserId(userId)
+            local character = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
+            local humanoid = character:WaitForChild("Humanoid")
+            humanoid:ApplyDescription(description)
+        end)
+
+        if success then
+            Button.Text = "تم النسخ بنجاح!"
+            Button.BackgroundColor3 = Color3.fromRGB(40, 180, 60)
+        else
+            Button.Text = "خطأ (تأكد من الاسم)"
+            Button.BackgroundColor3 = Color3.fromRGB(200, 40, 40)
+        end
+
+        task.wait(2)
+        Button.Text = "نسخ السكن"
+        Button.BackgroundColor3 = Color3.fromRGB(0, 170, 120)
+    end)
+end)
+
